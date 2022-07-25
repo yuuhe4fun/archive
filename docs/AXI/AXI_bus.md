@@ -1,5 +1,3 @@
-<a name="FDzuF"></a>
-
 # 总线简介
 - 总线是CPU、内存和I/O之间交换数据的共同通道，将一根信号线在多个模块间共享进行通信。
 - 当两个模块通过总线交换数据时，发起访问的一侧称为总线主控master，接受访问的一侧属于总线从属slave。
@@ -21,13 +19,10 @@
    - [IV]请求的应答
    - [V]释放总线控制权
       - 总线使用完毕后Mater通知总线控制器释放总线控制权。
-        <a name="Se5nP"></a>
 # 总线的设计与实现
 
 - 通过总线进行访问，需要预先设定Master与Slave间的通信规则，即总线协议。
-  <a name="naUS3"></a>
 # AXI总线
-<a name="qm1ak"></a>
 ## （一）VALID/READY 握手机制
 reference: manual A3.2.1<br />AXI 总线共有 5 个独立的通道，分别为写地址、写数据、写回应、读地址、读数据通道。
 > 读地址 (AR) read address
@@ -39,13 +34,15 @@ reference: manual A3.2.1<br />AXI 总线共有 5 个独立的通道，分别为�
 5条通道相互独立，有一些细小的差别，但共同使用一套握手机制：VALID/READY 机制，来实现信息的传递。<VALID/READY 机制这个赛高啊，这个好啊，ARM 的手册上这么夸：
 > 作为一种双向流控机制，VALID/READY 机制可以使发送接收双方都有能力控制传输速率。
 
-在握手机制中，通信双方分别扮演**发送方**(Source)和**接收方**（Destination），两者的操作（技能）并不相同。<br />**发送方**置高 **VALID** 信号表示发送方已经将数据，地址或者控制信息已经就绪，并保持于消息总线上。<br />**接收方**置高 **READY** 信号表示接收方已经做好接收的准备。<br />![image.png](https://cdn.nlark.com/yuque/0/2022/png/26861020/1657352142228-0cd2b2a8-70bb-4f88-8b69-2e31fbb14f18.png#clientId=uea8d41f8-f3bb-4&crop=0&crop=0&crop=1&crop=1&from=paste&id=udfbd3ead&margin=%5Bobject%20Object%5D&name=image.png&originHeight=346&originWidth=742&originalType=url&ratio=1&rotation=0&showTitle=false&size=93805&status=done&style=none&taskId=u28731aae-53c4-42cf-bd2b-7e640f8db5a&title=)<br />当双方的 VALID/READY 信号同时为高，在时钟 ACLK 上升沿，完成一次数据传输。所有数据传输完毕后，双方同时置低自己的信号。<br />所谓的**双向流控**机制，指的是发送方通过置起 VALID 信号控制发送的时机与速度，接收方也可以通过 READY 信号的置起与否控制接收速度。<br />发送方拥有传输的主动权，但接收方在不具备接收能力时，也能够置低信号停止传输，反压发送方。
+在握手机制中，通信双方分别扮演**发送方**(Source)和**接收方**（Destination），两者的操作（技能）并不相同。<br />**发送方**置高 **VALID** 信号表示发送方已经将数据，地址或者控制信息已经就绪，并保持于消息总线上。<br />**接收方**置高 **READY** 信号表示接收方已经做好接收的准备。<br />![](https://raw.githubusercontent.com/yuuhe4fun/cloudimg/main/img/1657352142228-0cd2b2a8-70bb-4f88-8b69-2e31fbb14f18.png)<br />当双方的 VALID/READY 信号同时为高，在时钟 ACLK 上升沿，完成一次数据传输。所有数据传输完毕后，双方同时置低自己的信号。<br />所谓的**双向流控**机制，指的是发送方通过置起 VALID 信号控制发送的时机与速度，接收方也可以通过 READY 信号的置起与否控制接收速度。<br />发送方拥有传输的主动权，但接收方在不具备接收能力时，也能够置低信号停止传输，反压发送方。
 <a name="Gqrvy"></a>
+
 ### VALID/READY 的三种情况
 VALID/READY 信号按照到达的先后顺序可以分为 3 种情况：
 <a name="FBf3i"></a>
+
 #### 1.VALID 信号先到达
-![image.png](https://cdn.nlark.com/yuque/0/2022/png/26861020/1657352142078-850e7fe5-8e22-4bf4-b1ef-0defd89e927f.png#clientId=uea8d41f8-f3bb-4&crop=0.0509&crop=0&crop=1&crop=1&from=paste&height=416&id=u9e70c9b6&margin=%5Bobject%20Object%5D&name=image.png&originHeight=439&originWidth=857&originalType=url&ratio=1&rotation=0&showTitle=false&size=50142&status=done&style=none&taskId=ue6531ac2-a8e3-4409-94bb-95b38b15055&title=&width=813)<br />发送方 VALID 信号早早就到了，这时还不到 T2 时刻，并带来了新鲜的数据（数据通道），地址或者控制信息（地址通道），总之是信息（Information）。<br />但过了 T2 也没见到接收方的 READY 信号。原来是接收方还忙着，可能上一次的数据还没存完，还堵在数据通路上，忙过了 T2 才来。<br />好吧，那也行，T3 时刻传输完成。<br />在这种情况下，接收方通过 READY 信号控制了传输速度，反压了发送速度。<br />协议规定在这种情况下，VALID 信号一旦置起就不能置低，直到完成握手（handshake occurs),至少传输一周期数据。<br />在设计接收方逻辑时，检测到 VALID 信号置起，如果系统正忙，完全可以让发送方等待，发送方在完成传输之前都不会置低 VALID 信号，不需要考虑发送方撤销传输的可能。<br />协议另外规定：发送方不能通过等待接收方 READY 信号来确定置起 VALID 信号的时机<br />这句中文阅读理解有点难，原文为：
+![](https://raw.githubusercontent.com/yuuhe4fun/cloudimg/main/img/1657352142078-850e7fe5-8e22-4bf4-b1ef-0defd89e927f.png)<br />发送方 VALID 信号早早就到了，这时还不到 T2 时刻，并带来了新鲜的数据（数据通道），地址或者控制信息（地址通道），总之是信息（Information）。<br />但过了 T2 也没见到接收方的 READY 信号。原来是接收方还忙着，可能上一次的数据还没存完，还堵在数据通路上，忙过了 T2 才来。<br />好吧，那也行，T3 时刻传输完成。<br />在这种情况下，接收方通过 READY 信号控制了传输速度，反压了发送速度。<br />协议规定在这种情况下，VALID 信号一旦置起就不能置低，直到完成握手（handshake occurs),至少传输一周期数据。<br />在设计接收方逻辑时，检测到 VALID 信号置起，如果系统正忙，完全可以让发送方等待，发送方在完成传输之前都不会置低 VALID 信号，不需要考虑发送方撤销传输的可能。<br />协议另外规定：发送方不能通过等待接收方 READY 信号来确定置起 VALID 信号的时机<br />这句中文阅读理解有点难，原文为：
 > A source is not permitted to wait until **READY** is asserted before asserting **VALID**.
 
 笔者个人理解，READY 信号可能先到达，如下图的情况。但是设计发送方逻辑时，不能将 READY 信号作为置高 VALID 逻辑的条件，比如将 READY 信号通过组合逻辑生成 VALID 信号。<br />换句话说，发送方准备发送，置起 VALID 信号是完全**主动与独立**的过程。接收方 READY 信号按照协议可以依赖发送方 VALID 信号，但如果此时发送方也依赖接收方信号，就会造成死锁的情况，所以协议在这里强调了 VALID 信号的主动性。
@@ -63,13 +60,15 @@ module axi_dst
 	...
 endmodule
 ```
-<a name="mxSqv"></a>
+
 #### 2.READY 信号先到达
-![image.png](https://cdn.nlark.com/yuque/0/2022/png/26861020/1657352142183-86a6d85a-f184-4c59-87c2-1d8ca06f6c63.png#clientId=uea8d41f8-f3bb-4&crop=0&crop=0&crop=1&crop=1&from=paste&id=u7f451018&margin=%5Bobject%20Object%5D&name=image.png&originHeight=439&originWidth=851&originalType=url&ratio=1&rotation=0&showTitle=false&size=48618&status=done&style=none&taskId=u85521369-4410-4e91-b423-9701b56b892&title=)<br />READY 信号很自由，可以等待 VALID 信号到来再做响应，但也完全可以在 VALID 信号到来前就置高，表示接收端已经做好准备了。<br />而且，READY 信号与 VALID 不同，接收方可以置起 READY 之后发现：其实我好像还挺忙，然后置低 READY 信号。只要此时 VALID 信号没有置起，这种操作是完全可以。
+![](https://raw.githubusercontent.com/yuuhe4fun/cloudimg/main/img/1657352142183-86a6d85a-f184-4c59-87c2-1d8ca06f6c63.png)<br />READY 信号很自由，可以等待 VALID 信号到来再做响应，但也完全可以在 VALID 信号到来前就置高，表示接收端已经做好准备了。<br />而且，READY 信号与 VALID 不同，接收方可以置起 READY 之后发现：其实我好像还挺忙，然后置低 READY 信号。只要此时 VALID 信号没有置起，这种操作是完全可以。
 <a name="qNRXw"></a>
+
 #### 3.同时到达
-![image.png](https://cdn.nlark.com/yuque/0/2022/png/26861020/1657352142196-c15b2b5e-1e12-40c1-9355-e812b4a160f3.png#clientId=uea8d41f8-f3bb-4&crop=0&crop=0&crop=1&crop=1&from=paste&id=u1ae381fb&margin=%5Bobject%20Object%5D&name=image.png&originHeight=454&originWidth=841&originalType=url&ratio=1&rotation=0&showTitle=false&size=46732&status=done&style=none&taskId=ue851c274-12d4-424b-aaac-b0da0833b6d&title=)<br />同时到达就很简单，等到下一个时钟上升沿 T2，传输就这么轻松愉快地在一个时钟周期里完成了。
+![](https://raw.githubusercontent.com/yuuhe4fun/cloudimg/main/img/1657352142196-c15b2b5e-1e12-40c1-9355-e812b4a160f3.png)<br />同时到达就很简单，等到下一个时钟上升沿 T2，传输就这么轻松愉快地在一个时钟周期里完成了。
 <a name="iObUN"></a>
+
 ### 实现细节
 前文我们讨论过， READY 信号原则上由接收方自身的接收状况以及 VALID 信号控制。（或者仅由接收方自身的接收状况决定）协议中没有规定 READY 信号的默认状态，即未进行传输时的电平状态（default value）。<br />协议建议 AW/AR READY 信号（这里 AW/AR 指的是读写地址通道的 READY 信号，将在第二章中正式引入）的默认电平为高电平。若默认电平为低，则每次传输至少需要 2 个周期才能完成，第一个周期置高 VALID 信号，第二个周期从机才会置高 READY 信号。相当于每次传输增加 1 个周期时间开销，这在某些情况下会对传输效率有较大的影响。
 <a name="JjMjh"></a>
