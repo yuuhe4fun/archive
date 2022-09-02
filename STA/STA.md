@@ -46,7 +46,7 @@
   - 命令置换`[]`：[]内是一个独立的TCL语句。
 
     ```tcl
-    set a [expr 3 + 4]
+    set a "[expr 3 + 4]"
     puts $a #7
     ```
 
@@ -58,9 +58,73 @@
     puts "\[expr \$X + \$Y\]" #[expr $X + $Y]
     ```
 
-    
+    `\t` -> TAB；
+  
+    `\n` -> 换行符；
+  
+    ```tcl
+    puts "a\tb"
+    # a		b
+    puts "a\nb"
+    # a
+    # b
+    ```
+  
+  - 其他符合：
+  
+    `""`：TCL解释器对双引号中`$`和`[]`符合会进行变量置换和命令置换。
+  
+    ```tcl
+    puts "\t[expr $X + $Y]"
+    # 2.5
+    ```
+  
+    `{}`：花括号中，所有特殊字符都将成为普通字符，TCL解释器不会对其特殊处理。
+  
+    ```tcl
+    puts {\t[expr $X + $Y]}
+    # \t[expr $X + $Y]
+    ```
+  
+    `#`：表示注释。
 
 ### 变量、数组、列表
+
+- 变量
+
+  定义：`set 变量名 变量值`
+
+  取值：`$变量名`
+
+  ```tcl
+  set cell "bufx2"
+  # bufx2
+  puts $cell
+  # bufx2
+  set cell "ivtx2"
+  # ivtx2
+  puts $cell
+  # ivtx2
+  
+  set a 2
+  # 2
+  puts $a_1
+  # can't read "a_1": no such variable
+  puts ${a}_1
+  # 2_1
+  ```
+
+- 数组
+
+  定义：set 数组名(元素名) 值
+
+  取值：$数组名(元素名)
+
+  ```tcl
+  
+  ```
+
+  
 
 ### 控制流
 
