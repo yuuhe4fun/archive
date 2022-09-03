@@ -426,7 +426,87 @@
 
 - \d：匹配一个数字
 
-  
+  ![](assets/image-20220903143345577.png)
+
+- 锚位，用来指示字符串当中开头和结尾的位置，使我们能够匹配到正确的字符
+
+  ![](assets/image-20220903144258783.png)
+
+- 常用的其他字符还有
+
+  - `\s`：空格
+  - `.`：任意字符
+
+- 正则匹配指令：`regexp? switches? exp string? matchVar? ?subMatchVar subMatchVar …?`
+
+  - 功能：在字符串中使用正则表达式匹配
+
+  - `switches`
+
+    `-nocase`将字符串中的大写都当成小写看待。
+
+    `exp` 正则表达式
+
+    `string` 用来进行匹配的字符串
+
+    `matchstring`表示用正则表示式匹配的所有字符串
+
+    `sub1`表示正则表达式中的第一个子表达式匹配的字符串
+
+    `sub2`表示正则表达式中的第二个子表达式匹配的字符串
+
+  - 例：匹配字符串“abc456”
+
+    ```tcl
+    regexp {\w+\d+} "abc456"
+    ```
+
+  - 例：匹配一个以数字开头且以数字结尾的字符串
+
+    ```tcl
+    regexp {^\d.*\d$} "1 dfsal 1"
+    ```
+
+  - 通过()可以捕获字符串
+
+    ```tcl
+    regexp {\s(\d+).*} "Snow is 30 years old" total age
+    puts $total
+    # 30 years old
+    puts $age
+    # 30
+    ```
+
+    ```tcl
+    regexp {^(\w+)\s\w+\s(\d+).*} "Snow is 30 years old" total name age
+    puts $total
+    # 30 years old
+    puts $name
+    # Snow
+    puts $age
+    # 30
+    ```
+
 
 ### 文本处理
 
+- `open`：
+  - `open 文件 打开方式`
+  - (r表示读模式，w表示写模式)
+- `gets`：
+  - `gets fileId 变量名`
+  - gets读fileId标识的文件的下一行，并把该行赋给变量，并返回该行的字符数（文件尾返回-1）
+- `close`：
+  - `close fileId`
+
+## 3 Synopsys TCL
+
+- refer to：./docs/4-Synopsys TCL语言入门.pdf
+
+- TCL在EDA工具中的扩展与应用
+
+  ![](assets/image-20220903162346834.png)
+
+- 使用TCL控制EDA工具流程
+
+  ![](assets/image-20220903162453517.png)
