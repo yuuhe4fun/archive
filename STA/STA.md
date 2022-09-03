@@ -377,9 +377,56 @@
 
 #### proc
 
+- 类似C语言中的函数。即用户自定义的功能，方便多次调用。
 
+  ```tcl
+  proc add {a b} {
+  set sum [expr $a + $b]
+  return $sum
+  }
+  
+  add 3 4
+  # 7
+  ```
+
+- 全局变量与局部变量
+
+  - 全局变量：在所有过程之外定义的变量。
+  - 局部变量：对于在过程中定义的变量，因为它们只能在过程中被访问，并且当过程退出时会被自动删除。
+  - 指令global，可以在过程内部引用全部变量
+
+  ```tcl
+  set a 1
+  proc sample {x} {
+  global a
+  set a [expr $a + 1]
+  return [expr $a + $x]
+  }
+  
+  sample 3
+  # 5
+  ```
+
+  ```tcl
+  set a 1
+  proc sample {x} {
+  set a [expr $a + 1]
+  return [expr $a + $x]
+  }
+  
+  sample 3
+  # Can't read "a": no such variable
+  ```
 
 ### 正则匹配
+
+- 正则表达式是一种特殊的字符串模式，用来取匹配符合规则的字符串。
+
+- \w：匹配一个字母、数字、下划线
+
+- \d：匹配一个数字
+
+  
 
 ### 文本处理
 
