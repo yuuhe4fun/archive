@@ -271,6 +271,8 @@
 
 - 语法格式：
 
+  `if{} ... elseif {} ... else{} ...`
+
   ```tcl
   if {$a > $b} {
   puts $a
@@ -281,7 +283,101 @@
 
 - 注意，上例中脚本语句的**'{'**一定要写在上一行，因为如果不这样，TCL 解释器会认为if命令在换行符处已结束，下一行会被当成新的命令，从而导致错误。
 
+  ```tcl
+  # 判断列表list长度
+  set list1 {0 1 2 3 4}
+  set length [llength $list1]
+  # 5
+  if {$length > 3} {
+  puts "The length of list1 is larger than 3"
+  } elseif {$length == 3} {
+  puts "The length of list1 is equal to 3"
+  } else {
+  puts "The length of list1 is less than 3"
+  }
+  # The length of list1 is larger than 3
+  ```
+
+#### foreach
+
+- 语法格式：`foreach 变量 列表 循环主体`
+
+- 功能：从第0个元素开始，每次按顺序取得列表的一个元素，将其赋值给变量，然后执行循环主体一次，直到列表最后一个元素。
+
+  ```tcl
+  set list1 {3 2 1}
+  foreach i $list1 {
+  puts $i
+  }
+  # 3
+  # 2
+  # 1
+  ```
+
+#### break
+
+- 结束整个循环过程并从循环中跳出
+
+  ```tcl
+  set list1 {3 2 1}
+  foreach i $list1 {
+  if {$i == 2} {
+  break
+  }
+  puts $i
+  }
+  # 3
+  ```
+
+#### continue
+
+- 仅结束本次循环
+
+  ```tcl
+  set list1 {3 2 1}
+  foreach i $list1 {
+  if {$i == 2} {
+  continue
+  }
+  puts $ i
+  }
+  # 3
+  # 2
+  ```
+
+#### while
+
+- 如果判断语句成立（返回值非0），就运行脚本，直到不满足判断条件停止循环，此时while命令中断并返回一个空字符串。
+
+  ```tcl
+  set i 3
+  while {$i > 0} {
+  puts $i
+  incr i -1; # set i[expr $i -1]
+  }
+  # 3
+  # 2
+  # 1
+  ```
+
+#### for
+
+- 如果判断语句返回值非0就进入循环，执行循环主体后，再重新初始化参数。然后再次进行判断，直到判断语句返回值为0，循环结束。
+
+  ```tcl
+  for {set i 3} {$i > 0} {incr i - 1} {
+  puts $i
+  }
+  # 3
+  # 2
+  # 1
+  ```
+
 ### 过程函数
+
+#### proc
+
+
 
 ### 正则匹配
 
