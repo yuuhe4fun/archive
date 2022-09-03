@@ -121,12 +121,165 @@
   取值：$数组名(元素名)
 
   ```tcl
+  set cell_1(ref_name) "bufx2"
+  set cell_1(full_name) "top/cell_1"
+  set cell_1(pins) "A B C"
   
+  puts $cell_1(ref_name)
+  # bufx2
+  
+  array size cell_1
+  # 3
+  array names cell_1
+  # ref_name pins full_name
+  # 这里的输出顺序？//TOFIX
   ```
 
+- 列表：标量的有序集合
+
+  定义：`set 列表名 {元素1 元素2 元素3 ......}`
+
+  取值：`$列表名`
+
+  ```tcl
+  set ivt_list {ivtx2 ivtx3 ivtx8}
+  puts ivt_list
+  # ivtx2 ivtx3 ivtx8
+  ```
+
+  常用列表操作命令：
+
+  ![](assets/image-20220903084202572.png)
+
+  ```tcl
+  set list1 {bufx1 bufx2 bufx4}
+  set list2 {ivtx1 ivtx2 ivtx4}
+  concat $list1 $list2
+  # bufx1 bufx2 bufx4 ivtx1 ivtx2 ivtx4
   
+  llength $list1
+  # 3
+  llength [concat $list1 $list1]
+  # 6
+  
+  # lindex返回列表中的第n个元素（从0开始计数）
+  lindex $list1 1
+  # bufx2
+  
+  # lappend
+  set a {1 2 3}
+  # 注意读取需要加$，此处不是读取
+  lappend a 4
+  puts $a
+  1 2 3 4
+  ```
+
+  ```tcl
+  # 如何得到列表list1{a b c d e f}中的最后一个元素
+  set list1 {a b c d e f}
+  llength $list1
+  # 6
+  expr [llength $list1] - 1
+  # 5
+  lindex $list1 [expr [llength $list1] - 1]
+  # f
+  ```
+
+  ```tcl
+  set a {1 2 3}
+  set b {4 5}
+  lappend a $b
+  # 1 2 3 {4 5}
+  
+  # 如果这里我们想得到4
+  lindex [lappend a $b] 3
+  # 4 5
+  lindex [lindex [lappend a $b] 3] 0
+  # 4
+  ```
+
+  - `lsort`列表指令将列表按照一定的规则排序
+    - 缺省时默认按照ASCII码进行排序
+    - `-real` ——> 按照浮点数值大小排序
+    - `-unique` ——> 唯一化，删除重复元素
+
+  ```tcl
+  set list1 {c d a f b}
+  # c d a f b
+  lsort $list1
+  # a b c d f
+  
+  set list2 {-2 3.1 5 0}
+  # -2 3.1 5 0
+  lsort -real $list2
+  # -2 0 3.1 5
+  
+  set list3 {a c c b a d}
+  # a c c b a d
+  lsort -unique $list3
+  # a b c d
+  
+  # 获取列表list1中最小值
+  set list1 {0 1.2 -4 3 5}
+  # 0 1.2 -4 3 5
+  lsort -real $list1
+  # -4 0 1.2 3 5
+  lindex [lsort -real $list1] 0
+  # -4
+  ```
+
+- 运算
+
+  - 数学运算
+
+    ```tcl
+    a+b
+    a-b
+    a*b
+    a/b
+    ```
+
+  - 逻辑运算
+
+    ```tcl
+    a<=b
+    a>=b
+    a==b
+    a!=b
+    ```
+
+  - `expr`数学运算表达式，将运算表达式求值
+
+    ```tcl
+    expr 6 + 4
+    # 10
+    expr 6 - 4
+    # 2
+    
+    expr 5/2
+    # 2
+    expr 5/2.0
+    # 2.5
+    expr 5.0/2
+    # 2.5
+    ```
+
 
 ### 控制流
+
+#### if
+
+- 语法格式：
+
+  ```tcl
+  if {$a > $b} {
+  puts $a
+  } else {
+  puts $b
+  }
+  ```
+
+- 注意，上例中脚本语句的**'{'**一定要写在上一行，因为如果不这样，TCL 解释器会认为if命令在换行符处已结束，下一行会被当成新的命令，从而导致错误。
 
 ### 过程函数
 
