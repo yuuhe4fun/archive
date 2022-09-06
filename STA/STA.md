@@ -513,3 +513,73 @@
 
 ## 4 Overview of Static Timing Analysis
 
+### PrimeTime
+
+![](assets/image-20220906203441681.png)
+
+### STA概念
+
+- Timing Arc 时序弧
+
+![](assets/image-20220906203647418.png)
+
+- cell delay 单元延迟
+
+  - Transition delay
+
+    ![](assets/image-20220906203933541.png)
+
+  - Logic gate delay
+
+    ![](assets/image-20220906204032862.png)
+
+- net delay 连线延迟
+
+- Setup Time - The length of time that data must stabilize before the clock transition.
+
+  - 此约束强制数据路径相对于时钟路径的**最大**延迟。
+
+
+![](assets/image-20220901213412666.png)
+
+- Hold Time - The length of time that data must remain stable at the input pin after the active clock transition.
+  - 此约束强制数据路径相对于时钟路径的最小延迟。
+
+![](assets/image-20220901213436880.png)
+
+- Timing path 时序路径
+  - startpoint
+    - a **clock pin** of a sequential element，如D触发器的clk pin
+    - an **input port** of the design
+  - endpoint
+    - a **data input pin** of a sequential element，如D触发器的D端pin
+    - an **output port** of the design
+
+- Clock Domain 时钟域
+  - 全局异步，局部同步
+  - DC/PT 一般处理的是同步电路，而无法应对异步电路，因此在异步电路时候需要约束处理
+
+
+- Operating Condition 操作条件
+
+  - **Process, Voltage and Temperature**(PVT) -> 工艺制程、电压、温度
+  - cell delay和net delay必须基于某一PVT条件才能精准分析
+
+  ![](assets/image-20220906210028386.png)
+
+  - condition的选择取决于标准库单元cell library
+
+## 5 标准单元库
+
+### Synopsys 时序库概述
+
+![](assets/image-20220906211906440.png)
+
+![](assets/image-20220906211737860.png)
+
+### 非线性延迟模型
+
+- Timing Model 时序模型
+  - 如下图案例，Tf, Output fall delay; Tr, Output rise delay
+
+![](assets/image-20220906213141035.png)
