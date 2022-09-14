@@ -583,3 +583,5 @@
   - 如下图案例，Tf, Output fall delay; Tr, Output rise delay
 
 ![](assets/image-20220906213141035.png)
+
+## 6 STA环境
