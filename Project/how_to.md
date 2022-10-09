@@ -1,0 +1,3 @@
+# [Two Cents on Computer Architecture Research](https://biswabandan.medium.com/two-cents-on-computer-architecture-research-101-4f00957c312a)
+
+In conclusion, an architect takes a problem that is worth solving,  performs experiments to find out that it is actually worth solving,  finds out insights that can help in finding out a solution, simulates  different form of ideas/insights/designs and evaluates its trade-offs,  and finally quantify the effect of the proposed solution.
